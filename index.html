@@ -1,0 +1,429 @@
+<!-- AI生成 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' http: https:; img-src 'self' data:"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5"
+    />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="CASEBANG" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>CASEBANG TK广告中心</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- 登录门：未登录时挡住整个应用 -->
+    <div class="auth-gate" id="authGate">
+      <div class="auth-card">
+        <img class="auth-logo" src="assets/logo-casebang.png" alt="CASEBANG" width="56" height="56" />
+        <h2 class="auth-title">CASEBANG TK广告中心</h2>
+        <p class="auth-sub">登录后可在手机和电脑上管理直播计划</p>
+
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab active" data-auth="password">密码登录</button>
+          <button type="button" class="auth-tab" data-auth="code">邮箱验证码</button>
+        </div>
+
+        <form class="auth-form" id="formPassword">
+          <label class="auth-field">
+            <span>邮箱</span>
+            <input type="email" id="pwdEmail" placeholder="you@example.com" autocomplete="username" required />
+          </label>
+          <label class="auth-field">
+            <span>密码</span>
+            <input type="password" id="pwdPass" placeholder="至少 6 位" autocomplete="current-password" required />
+          </label>
+          <div class="auth-err" id="pwdErr" hidden></div>
+          <button type="submit" class="btn primary auth-submit">登录</button>
+          <p class="auth-tip">首次用某个邮箱登录会自动创建账号</p>
+        </form>
+
+        <form class="auth-form hidden" id="formCode">
+          <label class="auth-field">
+            <span>邮箱</span>
+            <input type="email" id="codeEmail" placeholder="you@example.com" autocomplete="username" required />
+          </label>
+          <label class="auth-field">
+            <span>验证码</span>
+            <div class="code-row">
+              <input type="text" id="codeInput" inputmode="numeric" maxlength="4" placeholder="4 位数字" autocomplete="one-time-code" />
+              <button type="button" class="btn" id="btnSendCode">发送验证码</button>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>设置密码（可选，下次可直接用密码登录）</span>
+            <input type="password" id="codePass" placeholder="留空则只用验证码登录" autocomplete="new-password" />
+          </label>
+          <div class="auth-err" id="codeErr" hidden></div>
+          <button type="submit" class="btn primary auth-submit">登录</button>
+          <p class="auth-tip" id="codeTip">验证码 5 分钟内有效</p>
+        </form>
+      </div>
+    </div>
+
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <img class="logo logo-img" src="assets/logo-casebang.png" alt="CASEBANG" width="48" height="48" />
+          <div>
+            <h1>CASEBANG TK广告中心</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button id="btnAppReload" class="btn ghost" type="button" title="退出并重新启动客户端">重启客户端</button>
+          <div class="badges">
+            <span id="modeBadge" class="badge">…</span>
+            <span id="schedBadge" class="badge">…</span>
+            <span id="feishuBadge" class="badge">…</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="shell">
+        <!-- 左侧模块导航 -->
+        <nav class="sidenav" aria-label="模块导航">
+          <button type="button" class="nav-item active" data-view="dashboard" id="navDashboard">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 20V11M9.33 20V5M14.67 20v-6M20 20V8" />
+              <path d="M2.5 20.5h19" />
+            </svg>
+            <span class="nav-txt">数据看板</span>
+          </button>
+          <button type="button" class="nav-item" data-view="campaign" id="navCampaign">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="2.6" />
+              <path d="M7.4 7.4a6.5 6.5 0 0 0 0 9.2M16.6 7.4a6.5 6.5 0 0 1 0 9.2" />
+              <path d="M4.3 4.3a10.9 10.9 0 0 0 0 15.4M19.7 4.3a10.9 10.9 0 0 1 0 15.4" />
+            </svg>
+            <span class="nav-txt">直播计划</span>
+          </button>
+          <button type="button" class="nav-item" data-view="logs" id="navLogs">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12" />
+              <path d="M4 6.5h.01M4 12h.01M4 17.5h.01" />
+            </svg>
+            <span class="nav-txt">日志</span>
+          </button>
+          <button type="button" class="nav-item" data-view="status" id="navStatus">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M10.2 13.8a4.6 4.6 0 0 0 6.6.4l2.6-2.6a4.6 4.6 0 0 0-6.5-6.5l-1.5 1.5" />
+              <path d="M13.8 10.2a4.6 4.6 0 0 0-6.6-.4l-2.6 2.6a4.6 4.6 0 0 0 6.5 6.5l1.5-1.5" />
+            </svg>
+            <span class="nav-txt">连接状态</span>
+          </button>
+        </nav>
+
+        <!-- 右侧内容 -->
+        <div class="content">
+          <!-- 连接状态（导航最后一项） -->
+          <section class="view" id="viewStatus" data-view="status" hidden>
+            <div class="card">
+              <div class="card-h">
+                <h2>连接状态</h2>
+                <button id="btnRefresh" class="btn ghost" type="button">刷新</button>
+              </div>
+              <div class="kv">
+                <div><span>TikTok 授权</span><strong id="stTiktok">—</strong></div>
+                <div><span>飞书长连接</span><strong id="stFeishu">—</strong></div>
+                <div><span>调度器</span><strong id="stSched">—</strong></div>
+              </div>
+              <div id="modeBanner" class="banner hidden"></div>
+              <div class="row gap">
+                <button id="btnAuth" class="btn primary" type="button">TikTok 授权</button>
+                <button id="btnFeishu" class="btn" type="button">连接飞书</button>
+                <button id="btnFeishuOff" class="btn ghost" type="button">断开飞书</button>
+              </div>
+              <div class="who-row">
+                <span class="who-label">当前账号</span>
+                <strong id="whoAmI">—</strong>
+                <button id="btnLogout" class="btn danger sm" type="button">退出登录</button>
+              </div>
+              <div id="authHint" class="hint hidden"></div>
+            </div>
+          </section>
+
+          <!-- 数据看板（默认） -->
+          <section class="view active" id="viewDashboard" data-view="dashboard">
+            <div class="section-block">
+              <div class="section-head">
+                <div>
+                  <h2 class="section-title" id="dashTitle">GMV Max · 泰国</h2>
+                </div>
+                <div class="row gap date-bar">
+                  <span id="dashMockBadge" class="badge warn hidden">MOCK 演示</span>
+                  <button id="btnDashRefresh" class="btn primary" type="button">刷新数据</button>
+                </div>
+              </div>
+
+              <div class="control-stack">
+                <div class="chip-row" id="countryChips">
+                  <button type="button" class="chip active" data-country="TH">泰国</button>
+                  <button type="button" class="chip" data-country="SG">新加坡</button>
+                  <button type="button" class="chip" data-country="VN">越南</button>
+                </div>
+                <div class="chip-row" id="promoChips">
+                  <button type="button" class="chip active" data-promo="ALL">全部</button>
+                  <button type="button" class="chip" data-promo="LIVE">直播</button>
+                  <button type="button" class="chip" data-promo="PRODUCT">商品</button>
+                </div>
+              </div>
+
+              <div class="range-bar">
+                <div class="range-inputs range-unified" role="group" aria-label="日期范围">
+                  <input type="date" id="dashStartDate" aria-label="开始日期" />
+                  <span class="range-sep">—</span>
+                  <input type="date" id="dashEndDate" aria-label="结束日期" />
+                  <button type="button" id="btnCal" class="btn sm cal-trigger" title="打开日历">日历</button>
+                </div>
+              </div>
+
+              <div class="kpi-row" id="kpiRow">
+                <div class="kpi"><span>成本</span><strong id="kpiSpend">—</strong></div>
+                <div class="kpi"><span>SKU 订单</span><strong id="kpiOrders">—</strong></div>
+                <div class="kpi"><span>平均下单</span><strong id="kpiAov">—</strong></div>
+                <div class="kpi"><span>总收入</span><strong id="kpiRevenue">—</strong></div>
+                <div class="kpi"><span>ROI</span><strong id="kpiRoi">—</strong></div>
+              </div>
+
+              <div class="card nested-card chart-card">
+                <div class="legend">
+                  <span><i class="dot cost"></i> 成本</span>
+                  <span><i class="dot orders"></i> SKU 订单数</span>
+                </div>
+                <div class="chart-wrap chart-dual">
+                  <canvas id="chartDual" width="960" height="260"></canvas>
+                </div>
+              </div>
+
+              <div class="card nested-card" style="margin-top:14px">
+                <div class="table-wrap">
+                  <table class="data-table" id="dashTable">
+                    <thead>
+                      <tr>
+                        <th class="sortable" data-sort="name">计划</th>
+                        <th class="sortable active" data-sort="cost">成本 <span class="sort-arrow">▼</span></th>
+                        <th class="sortable" data-sort="orders">订单</th>
+                        <th class="sortable" data-sort="revenue">总收入</th>
+                        <th class="sortable" data-sort="roi">ROI</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashTableBody">
+                      <tr><td colspan="5" class="empty">加载中…</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 模块 2：直播计划 -->
+          <section class="view" id="viewCampaign" data-view="campaign" hidden>
+            <div class="section-block" id="sectionCampaign">
+              <div class="section-head">
+                <div class="row gap head-title-row">
+                  <h2 class="section-title">直播计划</h2>
+                  <div class="country-tabs" id="countryTabs" aria-label="国家筛选">
+                    <button type="button" class="country-tab active" data-country="__all__">全部</button>
+                  </div>
+                </div>
+                <div class="row gap head-actions">
+                  <button id="btnLoadCamp" class="btn" type="button">刷新列表</button>
+                </div>
+              </div>
+
+              <div class="section-body">
+                <div class="country-layout">
+                  <!-- 左：API 计划列表 -->
+                  <div class="card nested-card col-left">
+                    <div class="card-h">
+                      <h3>直播计划</h3>
+                      <span class="tag" id="campCount">—</span>
+                    </div>
+                    <div id="campList" class="list list-tall">加载中…</div>
+                    <div class="pager" id="campPager"></div>
+                  </div>
+
+                  <!-- 右：设置直播时间（点左侧计划后出现） -->
+                  <div class="card nested-card col-right" id="slotCard">
+                    <div class="card-h">
+                      <h3>设置直播时间</h3>
+                      <div class="row gap">
+                        <span class="tag" id="slotCampName">未选择计划</span>
+                        <button type="button" id="btnSlotBack" class="btn sm ghost slot-back">返回列表</button>
+                      </div>
+                    </div>
+
+                    <div id="slotEmpty" class="empty">
+                      点击任意直播计划，在这里设置它的投放时段。
+                    </div>
+
+                    <div id="slotBody" class="hidden">
+                      <div class="master-bar">
+                        <div>
+                          <div class="master-title">自动化总开关</div>
+                          <div class="master-sub">关闭后不再干预该计划的开 / 关</div>
+                        </div>
+                        <label class="switch" title="整个自动化总开关">
+                          <input type="checkbox" id="autoMaster" checked />
+                          <span class="track"></span>
+                          <span class="knob"></span>
+                        </label>
+                      </div>
+
+                      <div class="mode-tabs" role="tablist">
+                        <button type="button" class="mode-tab" data-mode="allday" id="tabAllDay">全天</button>
+                        <button type="button" class="mode-tab active" data-mode="days" id="tabWeekly">特定时段</button>
+                        <button type="button" class="mode-tab" data-mode="oneshot" id="tabOneshot">定时开关</button>
+                      </div>
+
+                      <div id="panelWeekly" class="time-panel">
+                        <div class="month-bar">
+                          <button type="button" id="btnPrevMonth" class="btn sm ghost">‹ 上月</button>
+                          <span id="monthLabel" class="month-label">—</span>
+                          <button type="button" id="btnNextMonth" class="btn sm ghost">下月 ›</button>
+                          <span id="monthHint" class="month-hint"></span>
+                        </div>
+                        <div class="panel-note" id="tzNote">
+                          按半小时选择（每格 30 分钟，本机时区）。鼠标可按住拖动连选，触屏点按切换；选中的时段自动开，时段外自动关，未设置的日期当天会自动关闭。
+                        </div>
+                        <div class="week-grid-wrap">
+                          <div class="week-grid" id="weekGrid"></div>
+                        </div>
+                        <div class="slot-summary">
+                          <div class="sum-head">
+                            <span>已选择时段</span>
+                            <button type="button" id="btnClearSlots" class="link-btn">清除所有</button>
+                          </div>
+                          <div id="slotSummary" class="sum-body"><div class="empty">暂无时段</div></div>
+                        </div>
+                      </div>
+
+                      <div id="panelAllday" class="time-panel hidden">
+                        <div class="panel-note">该计划将全天投放，不执行任何定时开关。</div>
+                      </div>
+
+                      <div id="panelOneshot" class="time-panel hidden">
+                        <div class="panel-note">
+                          在指定时间执行<b>一次</b>开或关，执行完自动失效；不与上面两种排期叠加（保存即切换为本模式）。
+                        </div>
+                        <div class="form-grid oneshot-form">
+                          <div class="field">
+                            <span>日期</span>
+                            <input type="date" id="oneshotDate" class="pick-input" readonly />
+                          </div>
+                          <div class="field">
+                            <span>时间（本机时区）</span>
+                            <div class="pick-anchor">
+                              <input type="text" id="oneshotTime" class="pick-input" readonly placeholder="选择时间" />
+                              <div class="time-pop hidden" id="timePop">
+                                <div class="time-col" id="timeHours"></div>
+                                <div class="time-col" id="timeMins"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="field">
+                            <span>动作</span>
+                            <div class="pick-anchor">
+                              <input type="hidden" id="oneshotAction" value="enable" />
+                              <button type="button" class="theme-select" id="actionBtn">
+                                <span id="actionLabel">开启</span><i class="caret">▾</i>
+                              </button>
+                              <div class="select-pop hidden" id="actionPop">
+                                <button type="button" class="select-opt" data-v="enable">开启</button>
+                                <button type="button" class="select-opt" data-v="disable">关闭</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div id="oneshotStatus" class="panel-note oneshot-status hidden"></div>
+
+                        <!-- 排期预览：与「特定时段」同款日历，单次开关标红显示 -->
+                        <div class="month-bar" style="margin-top:12px">
+                          <button type="button" id="osPrevMonth" class="btn sm ghost">‹ 上月</button>
+                          <span id="osMonthLabel" class="month-label">—</span>
+                          <button type="button" id="osNextMonth" class="btn sm ghost">下月 ›</button>
+                          <span class="month-hint" id="osPreviewHint">排期预览 · 点击格子可直接设置日期和时间</span>
+                        </div>
+                        <div class="week-grid-wrap">
+                          <div class="week-grid" id="oneshotGrid"></div>
+                        </div>
+                      </div>
+
+                      <div class="row gap" style="margin-top:12px">
+                        <button type="button" id="btnSaveSlot" class="btn primary">保存时间设置</button>
+                        <button type="button" id="btnSlotTick" class="btn ghost">立即试跑一次</button>
+                      </div>
+
+                      <div class="subhead">最近执行</div>
+                      <div id="slotRuns" class="list muted">—</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 模块 3：日志 -->
+          <section class="view" id="viewLogs" data-view="logs" hidden>
+            <div class="card">
+              <div class="card-h">
+                <h2>日志</h2>
+                <button id="btnLogs" class="btn ghost" type="button">刷新</button>
+              </div>
+              <div id="logList" class="logs"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="foot">
+        <span id="previewNote" class="hidden">浏览器预览模式：请用 <code>npm start</code> 启动桌面端以启用控制</span>
+      </footer>
+
+      <!-- 全局日历（看板范围选择 / 直播计划单选日期共用） -->
+      <div class="range-calendar hidden" id="rangeCalendar">
+        <div class="range-calendar-inner">
+          <div class="range-presets" id="rangePresets">
+            <button type="button" class="preset active" data-days="0">今天</button>
+            <button type="button" class="preset" data-days="1">昨天</button>
+            <button type="button" class="preset" data-days="7">近 7 天</button>
+            <button type="button" class="preset" data-days="30">近 30 天</button>
+            <button type="button" class="preset" data-days="90">近 3 个月</button>
+            <button type="button" class="preset" data-days="180">近 6 个月</button>
+            <button type="button" class="preset" data-days="365">过去 12 个月</button>
+          </div>
+          <div class="range-calendar-main">
+            <div class="cal-head">
+              <button type="button" class="cal-nav" data-nav="py">«</button>
+              <button type="button" class="cal-nav" data-nav="pm">‹</button>
+              <span id="calLabelA">—</span>
+              <span class="cal-mid">至</span>
+              <span id="calLabelB">—</span>
+              <button type="button" class="cal-nav" data-nav="ny">›</button>
+              <button type="button" class="cal-nav" data-nav="nm">»</button>
+              <button type="button" class="cal-close" id="calClose">×</button>
+            </div>
+            <div class="cal-body">
+              <div class="cal-month" id="calMonthA"></div>
+              <div class="cal-month" id="calMonthB"></div>
+            </div>
+            <div class="cal-hint">先点开始日期，再点结束日期；或点左侧快捷范围</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="app.js"></script>
+    <script src="dash-ui.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+# 本地密钥 — 不要提交到 git
+.env
+node_modules/
+
+# 运行数据：TikTok 访问令牌、登录账号密码哈希、日志、广告账户等业务数据
+data/
+
+# 截图 / 排查产物（含经营数据）
+output/
+*.log
+
+# 本地工具与会话状态
+.mimocode/
+.playwright-cli/
+dist/

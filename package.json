@@ -1,0 +1,19 @@
+{
+  "name": "tiktok-gmvmax-desktop",
+  "version": "0.1.0",
+  "description": "Desktop app to schedule TikTok GMV Max campaign on/off with Feishu bot control",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "web": "node server.js",
+    "mobile": "node server.js"
+  },
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.74.0",
+    "dotenv": "^16.6.1",
+    "nodemailer": "^10.0.13"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}
